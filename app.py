@@ -8,15 +8,20 @@ app = Flask(__name__)
 PDF_FOLDER = 'pdf'
 IMAGE_FOLDER = 'images'
 
+# URL base de la API (se puede configurar como variable de entorno)
+BASE_URL = os.environ.get('BASE_URL', 'https://apipdf-rh0o.onrender.com')
+
 @app.route('/api/pdfs', methods=['GET'])
 def list_pdfs():
-    """Devuelve lista de PDFs con nombre y path"""
+    """Devuelve lista de PDFs con nombre y URL directa"""
     try:
         pdf_files = []
         for file in glob.glob(os.path.join(PDF_FOLDER, '*.pdf')):
+            filename = os.path.basename(file)
             pdf_files.append({
-                'nombre': os.path.basename(file),
-                'path': os.path.abspath(file)
+                'nombre': filename,
+                'path': os.path.abspath(file),
+                'url': f"{BASE_URL}/api/download/pdf/{filename}"
             })
         return jsonify({'pdfs': pdf_files})
     except Exception as e:
@@ -24,15 +29,17 @@ def list_pdfs():
 
 @app.route('/api/images', methods=['GET'])
 def list_images():
-    """Devuelve lista de imágenes con nombre y path"""
+    """Devuelve lista de imágenes con nombre y URL directa"""
     try:
         image_files = []
         extensions = ['*.jpg', '*.jpeg', '*.png', '*.gif', '*.bmp']
         for ext in extensions:
             for file in glob.glob(os.path.join(IMAGE_FOLDER, ext)):
+                filename = os.path.basename(file)
                 image_files.append({
-                    'nombre': os.path.basename(file),
-                    'path': os.path.abspath(file)
+                    'nombre': filename,
+                    'path': os.path.abspath(file),
+                    'url': f"{BASE_URL}/api/download/image/{filename}"
                 })
         return jsonify({'images': image_files})
     except Exception as e:
